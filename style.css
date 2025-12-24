@@ -207,26 +207,25 @@ body::before {
     height: 100vh;
     background: linear-gradient(135deg, #0a0e27 0%, #16213e 50%, #1a1a2e 100%);
     z-index: 99999;
-    display: grid;
-    grid-template-columns: 180px 1fr 180px;
-    align-items: center;
-    justify-items: center;
     transition: opacity 0.8s ease-out, transform 0.8s ease-out;
 }
 
 /* Splash Screen Side Banners */
 .splash-banner-left,
 .splash-banner-right {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
     display: none;
     animation: fadeIn 1s ease-out 1s both;
 }
 
 .splash-banner-left {
-    justify-self: center;
+    left: 20px;
 }
 
 .splash-banner-right {
-    justify-self: center;
+    right: 20px;
 }
 
 .splash-banner-left .ad-placeholder,
@@ -255,10 +254,12 @@ body::before {
 
 .splash-content {
     text-align: center;
-    position: relative;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     z-index: 2;
     pointer-events: auto;
-    justify-self: center;
     max-width: 600px;
 }
 
