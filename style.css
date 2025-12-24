@@ -85,23 +85,31 @@ body::before {
     font-size: 28px;
     margin-bottom: 15px;
     text-shadow: 0 0 15px rgba(0, 212, 255, 0.8);
+    pointer-events: none;
 }
 
 .age-consent-content p {
     color: #ccc;
     font-size: 16px;
     margin-bottom: 20px;
+    pointer-events: none;
+}
+
+.age-question {
+    pointer-events: none;
 }
 
 .age-question h3 {
     color: #fff;
     font-size: 22px;
     margin: 30px 0 15px;
+    pointer-events: none;
 }
 
 .age-description {
     font-size: 13px;
     color: #888;
+    pointer-events: none;
 }
 
 .age-buttons {
@@ -159,16 +167,21 @@ body::before {
     margin-top: 25px;
     padding-top: 20px;
     border-top: 1px solid rgba(0, 212, 255, 0.2);
+    pointer-events: auto;
 }
 
 .age-info small {
     font-size: 12px;
     color: #666;
+    pointer-events: none;
 }
 
 .age-info a {
     color: #00d4ff;
     text-decoration: none;
+    pointer-events: auto;
+    position: relative;
+    z-index: 100005;
 }
 
 .age-info a:hover {
