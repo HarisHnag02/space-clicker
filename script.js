@@ -1879,76 +1879,78 @@
     }
 
     function showAgeConsentModal() {
-        console.log('Showing age consent modal...');
+        console.log('=== SHOWING AGE CONSENT MODAL ===');
         const modal = document.getElementById('age-consent-modal');
-        const yesButton = document.getElementById('age-yes');
-        const noButton = document.getElementById('age-no');
-
-        if (!modal || !yesButton || !noButton) {
-            console.error('Age consent elements not found!');
+        
+        if (!modal) {
+            console.error('❌ Age consent modal not found!');
             return;
         }
 
         modal.style.display = 'flex';
-        console.log('Age consent modal displayed');
-        console.log('Yes button:', yesButton);
-        console.log('No button:', noButton);
+        console.log('✅ Modal displayed');
 
-        // Remove any existing listeners
-        const newYesButton = yesButton.cloneNode(true);
-        const newNoButton = noButton.cloneNode(true);
-        yesButton.parentNode.replaceChild(newYesButton, yesButton);
-        noButton.parentNode.replaceChild(newNoButton, noButton);
+        // Wait a moment for modal to render, then attach handlers
+        setTimeout(() => {
+            const yesButton = document.getElementById('age-yes');
+            const noButton = document.getElementById('age-no');
 
-        // Add event listeners to new buttons
-        newYesButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log('YES BUTTON CLICKED! Age consent: Yes (13+)');
-            localStorage.setItem('ageConsent', 'true');
-            
-            // Fade out age modal
-            modal.classList.add('fade-out');
-            
-            // Show splash screen
-            setTimeout(() => {
-                modal.style.display = 'none';
-                document.getElementById('splash-screen').style.display = 'flex';
-                showSplashScreen();
-            }, 500);
-        });
+            if (!yesButton || !noButton) {
+                console.error('❌ Buttons not found!', { yesButton, noButton });
+                return;
+            }
 
-        // Also handle touch
-        newYesButton.addEventListener('touchstart', function(e) {
-            e.preventDefault();
-            console.log('YES BUTTON TOUCHED!');
-            newYesButton.click();
-        });
+            console.log('✅ Buttons found:', yesButton, noButton);
 
-        newNoButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log('NO BUTTON CLICKED! Age consent: No (under 13)');
-            
-            // Show age restriction message
-            const content = modal.querySelector('.age-consent-content');
-            content.innerHTML = `
-                <h2>⚠️ Age Restriction</h2>
-                <p style="font-size: 18px; margin: 30px 0; color: #ccc;">This game is intended for users 13 years and older.</p>
-                <p style="color: #888;">Please return when you're older, or ask a parent/guardian for permission.</p>
-                <div style="margin-top: 40px;">
-                    <button onclick="location.reload()" style="padding: 15px 30px; background: linear-gradient(135deg, #00d4ff, #0099cc); border: none; border-radius: 25px; color: #000; font-weight: bold; cursor: pointer; font-size: 14px;">
-                        ↻ Start Over
-                    </button>
-                </div>
-            `;
-        });
+            // YES BUTTON - Direct onclick
+            yesButton.onclick = function(e) {
+                console.log('🎉 YES BUTTON CLICKED!');
+                localStorage.setItem('ageConsent', 'true');
+                
+                // Fade out age modal
+                modal.classList.add('fade-out');
+                
+                // Show splash screen
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                    document.getElementById('splash-screen').style.display = 'flex';
+                    showSplashScreen();
+                }, 500);
+            };
 
-        newNoButton.addEventListener('touchstart', function(e) {
-            e.preventDefault();
-            console.log('NO BUTTON TOUCHED!');
-            newNoButton.click();
-        });
+            // Touch handler
+            yesButton.ontouchstart = function(e) {
+                e.preventDefault();
+                console.log('📱 YES BUTTON TOUCHED!');
+                yesButton.onclick();
+            };
 
-        console.log('Age consent buttons ready!');
+            // NO BUTTON - Direct onclick
+            noButton.onclick = function(e) {
+                console.log('❌ NO BUTTON CLICKED!');
+                
+                // Show age restriction message
+                const content = modal.querySelector('.age-consent-content');
+                content.innerHTML = `
+                    <h2>⚠️ Age Restriction</h2>
+                    <p style="font-size: 18px; margin: 30px 0; color: #ccc;">This game is intended for users 13 years and older.</p>
+                    <p style="color: #888;">Please return when you're older, or ask a parent/guardian for permission.</p>
+                    <div style="margin-top: 40px;">
+                        <button onclick="location.reload()" style="padding: 15px 30px; background: linear-gradient(135deg, #00d4ff, #0099cc); border: none; border-radius: 25px; color: #000; font-weight: bold; cursor: pointer; font-size: 14px;">
+                            ↻ Start Over
+                        </button>
+                    </div>
+                `;
+            };
+
+            noButton.ontouchstart = function(e) {
+                e.preventDefault();
+                console.log('📱 NO BUTTON TOUCHED!');
+                noButton.onclick();
+            };
+
+            console.log('✅ Age consent handlers attached!');
+        }, 100);
     }
 
     // =============================================
