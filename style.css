@@ -209,8 +209,7 @@ body::before {
     z-index: 99999;
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 20px;
+    justify-content: space-between;
     transition: opacity 0.8s ease-out, transform 0.8s ease-out;
 }
 
@@ -218,7 +217,17 @@ body::before {
 .splash-banner-left,
 .splash-banner-right {
     display: none;
+    flex-shrink: 0;
+    align-self: center;
     animation: fadeIn 1s ease-out 1s both;
+}
+
+.splash-banner-left {
+    margin-left: 20px;
+}
+
+.splash-banner-right {
+    margin-right: 20px;
 }
 
 .splash-banner-left .ad-placeholder,
@@ -250,6 +259,8 @@ body::before {
     position: relative;
     z-index: 2;
     pointer-events: auto;
+    flex: 0 1 auto;
+    max-width: 600px;
 }
 
 /* Animated Space Background */
