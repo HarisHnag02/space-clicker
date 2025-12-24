@@ -207,9 +207,10 @@ body::before {
     height: 100vh;
     background: linear-gradient(135deg, #0a0e27 0%, #16213e 50%, #1a1a2e 100%);
     z-index: 99999;
-    display: flex;
+    display: grid;
+    grid-template-columns: 180px 1fr 180px;
     align-items: center;
-    justify-content: space-between;
+    justify-items: center;
     transition: opacity 0.8s ease-out, transform 0.8s ease-out;
 }
 
@@ -217,17 +218,15 @@ body::before {
 .splash-banner-left,
 .splash-banner-right {
     display: none;
-    flex-shrink: 0;
-    align-self: center;
     animation: fadeIn 1s ease-out 1s both;
 }
 
 .splash-banner-left {
-    margin-left: 20px;
+    justify-self: center;
 }
 
 .splash-banner-right {
-    margin-right: 20px;
+    justify-self: center;
 }
 
 .splash-banner-left .ad-placeholder,
@@ -259,7 +258,7 @@ body::before {
     position: relative;
     z-index: 2;
     pointer-events: auto;
-    flex: 0 1 auto;
+    justify-self: center;
     max-width: 600px;
 }
 
