@@ -210,7 +210,29 @@ body::before {
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 20px;
     transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+/* Splash Screen Side Banners */
+.splash-banner-left,
+.splash-banner-right {
+    display: none;
+    animation: fadeIn 1s ease-out 1s both;
+}
+
+.splash-banner-left .ad-placeholder,
+.splash-banner-right .ad-placeholder {
+    width: 160px;
+    height: 600px;
+    min-height: 600px;
+}
+
+@media (min-width: 1200px) {
+    .splash-banner-left,
+    .splash-banner-right {
+        display: block;
+    }
 }
 
 .splash-screen.fade-out {
@@ -1221,6 +1243,12 @@ aside {
 .ad-placeholder.large {
     min-height: 320px;
     width: 100%;
+}
+
+.ad-placeholder.vertical {
+    width: 160px;
+    height: 600px;
+    min-height: 600px;
 }
 
 .ad-content {
