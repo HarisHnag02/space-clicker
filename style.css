@@ -11,7 +11,7 @@ body {
     overflow: hidden;
     width: 100vw;
     height: 100vh;
-    touch-action: none;
+    touch-action: auto;
     user-select: none;
     -webkit-user-select: none;
     position: fixed;
@@ -47,6 +47,7 @@ body::before {
     align-items: center;
     justify-content: center;
     transition: opacity 0.5s ease-out;
+    pointer-events: auto;
 }
 
 .age-consent-overlay.fade-out {
@@ -63,6 +64,9 @@ body::before {
     text-align: center;
     box-shadow: 0 0 50px rgba(0, 212, 255, 0.6);
     animation: scaleIn 0.5s ease-out;
+    position: relative;
+    z-index: 100003;
+    pointer-events: auto;
 }
 
 @keyframes scaleIn {
@@ -105,6 +109,9 @@ body::before {
     flex-direction: column;
     gap: 15px;
     margin: 30px 0;
+    position: relative;
+    z-index: 100004;
+    pointer-events: auto;
 }
 
 .age-button {
@@ -120,6 +127,11 @@ body::before {
     touch-action: manipulation;
     user-select: none;
     -webkit-user-select: none;
+    position: relative;
+    z-index: 100004;
+    pointer-events: auto;
+    display: block;
+    width: 100%;
 }
 
 .age-button.yes {
