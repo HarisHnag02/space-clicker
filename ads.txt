@@ -1,0 +1,25 @@
+# ads.txt file for Space Exploration Clicker
+# Replace YOUR-PUBLISHER-ID with your actual Google AdSense publisher ID
+
+# Google AdSense - REQUIRED
+google.com, pub-YOUR-PUBLISHER-ID, DIRECT, f08c47fec0942fa0
+
+# Unity Ads - Optional (if using Unity Ads for rewarded videos)
+# Replace YOUR-GAME-ID with your Unity Ads game ID
+# unity.com, YOUR-GAME-ID, DIRECT, 96cabb5fbdde37a7
+
+# Instructions:
+# 1. Sign up for Google AdSense: https://www.google.com/adsense
+# 2. Get your publisher ID (format: pub-1234567890123456)
+# 3. Replace "pub-YOUR-PUBLISHER-ID" above with your actual ID
+# 4. Upload this file to your domain root (same folder as index.html)
+# 5. Verify at: https://yourdomain.com/ads.txt
+
+# Benefits:
+# - Prevents ad fraud
+# - Increases advertiser trust
+# - May improve ad revenue by 10-20%
+# - Required by many ad networks
+
+# More info: https://iabtechlab.com/ads-txt/
+
