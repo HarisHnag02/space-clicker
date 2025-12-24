@@ -1,3 +1,41 @@
+// =============================================
+// GLOBAL FUNCTIONS (Must be outside IIFE for inline onclick)
+// =============================================
+
+window.handleAgeYes = function() {
+    console.log('🎉 YES BUTTON CLICKED! (inline handler)');
+    localStorage.setItem('ageConsent', 'true');
+    
+    const modal = document.getElementById('age-consent-modal');
+    modal.classList.add('fade-out');
+    
+    setTimeout(() => {
+        modal.style.display = 'none';
+        document.getElementById('splash-screen').style.display = 'flex';
+        // Call the internal function
+        if (window.gameInitialized) {
+            window.gameInitialized.showSplashScreen();
+        }
+    }, 500);
+};
+
+window.handleAgeNo = function() {
+    console.log('❌ NO BUTTON CLICKED! (inline handler)');
+    
+    const modal = document.getElementById('age-consent-modal');
+    const content = modal.querySelector('.age-consent-content');
+    content.innerHTML = `
+        <h2>⚠️ Age Restriction</h2>
+        <p style="font-size: 18px; margin: 30px 0; color: #ccc;">This game is intended for users 13 years and older.</p>
+        <p style="color: #888;">Please return when you're older, or ask a parent/guardian for permission.</p>
+        <div style="margin-top: 40px;">
+            <button onclick="location.reload()" style="padding: 15px 30px; background: linear-gradient(135deg, #00d4ff, #0099cc); border: none; border-radius: 25px; color: #000; font-weight: bold; cursor: pointer; font-size: 14px; pointer-events: auto;">
+                ↻ Start Over
+            </button>
+        </div>
+    `;
+};
+
 (function() {
     'use strict';
 
@@ -2251,38 +2289,6 @@
         }
     }
 
-    // Global functions for age consent (inline onclick handlers)
-    window.handleAgeYes = function() {
-        console.log('🎉 YES BUTTON CLICKED! (inline handler)');
-        localStorage.setItem('ageConsent', 'true');
-        
-        const modal = document.getElementById('age-consent-modal');
-        modal.classList.add('fade-out');
-        
-        setTimeout(() => {
-            modal.style.display = 'none';
-            document.getElementById('splash-screen').style.display = 'flex';
-            showSplashScreen();
-        }, 500);
-    };
-
-    window.handleAgeNo = function() {
-        console.log('❌ NO BUTTON CLICKED! (inline handler)');
-        
-        const modal = document.getElementById('age-consent-modal');
-        const content = modal.querySelector('.age-consent-content');
-        content.innerHTML = `
-            <h2>⚠️ Age Restriction</h2>
-            <p style="font-size: 18px; margin: 30px 0; color: #ccc;">This game is intended for users 13 years and older.</p>
-            <p style="color: #888;">Please return when you're older, or ask a parent/guardian for permission.</p>
-            <div style="margin-top: 40px;">
-                <button onclick="location.reload()" style="padding: 15px 30px; background: linear-gradient(135deg, #00d4ff, #0099cc); border: none; border-radius: 25px; color: #000; font-weight: bold; cursor: pointer; font-size: 14px; pointer-events: auto;">
-                    ↻ Start Over
-                </button>
-            </div>
-        `;
-    };
-
     function showAgeConsentModal() {
         console.log('=== SHOWING AGE CONSENT MODAL ===');
         const modal = document.getElementById('age-consent-modal');
@@ -2294,6 +2300,8 @@
 
         modal.style.display = 'flex';
         console.log('✅ Modal displayed - buttons use inline onclick handlers');
+        console.log('✅ handleAgeYes function available:', typeof window.handleAgeYes);
+        console.log('✅ handleAgeNo function available:', typeof window.handleAgeNo);
     }
 
     // =============================================
@@ -2523,6 +2531,11 @@
             };
         }
     }
+
+    // Export showSplashScreen for global access
+    window.gameInitialized = {
+        showSplashScreen: showSplashScreen
+    };
 
     // Start with age consent check when DOM is ready
     if (document.readyState === 'loading') {
