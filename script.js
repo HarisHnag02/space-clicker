@@ -1748,6 +1748,119 @@
         
         // Don't auto-show help popup on game start
         // User can click the guide button when ready
+
+        // Privacy Settings
+        document.getElementById('privacy-settings-link').addEventListener('click', (e) => {
+            e.preventDefault();
+            showPrivacySettings();
+        });
+
+        document.getElementById('close-privacy-settings').addEventListener('click', () => {
+            hidePrivacySettings();
+        });
+
+        document.getElementById('export-data-btn').addEventListener('click', exportSaveData);
+        document.getElementById('delete-data-btn').addEventListener('click', deleteAllData);
+        document.getElementById('save-privacy-settings').addEventListener('click', savePrivacySettings);
+    }
+
+    // =============================================
+    // PRIVACY SETTINGS SYSTEM
+    // =============================================
+    function showPrivacySettings() {
+        const modal = document.getElementById('privacy-settings-modal');
+        modal.classList.add('show');
+        requestAnimationFrame(() => {
+            modal.classList.add('active');
+        });
+
+        // Update data info
+        updatePrivacyInfo();
+    }
+
+    function hidePrivacySettings() {
+        const modal = document.getElementById('privacy-settings-modal');
+        modal.classList.remove('active');
+        setTimeout(() => {
+            modal.classList.remove('show');
+        }, 300);
+    }
+
+    function updatePrivacyInfo() {
+        // Calculate save data size
+        try {
+            const saveData = localStorage.getItem(CONFIG.SAVE_KEY);
+            if (saveData) {
+                const sizeKB = (saveData.length / 1024).toFixed(2);
+                document.getElementById('data-size').textContent = `~${sizeKB} KB`;
+                
+                const saveObj = JSON.parse(saveData);
+                const lastSaved = new Date(saveObj.lastPlayed);
+                document.getElementById('last-save-time').textContent = lastSaved.toLocaleString();
+            }
+        } catch (e) {
+            console.error('Error reading save data:', e);
+        }
+
+        // Load privacy preferences
+        const preferences = JSON.parse(localStorage.getItem('privacyPreferences') || '{"analytics":true,"ads":true}');
+        document.getElementById('analytics-cookies').checked = preferences.analytics;
+        document.getElementById('ad-cookies').checked = preferences.ads;
+    }
+
+    function savePrivacySettings() {
+        const preferences = {
+            analytics: document.getElementById('analytics-cookies').checked,
+            ads: document.getElementById('ad-cookies').checked
+        };
+        
+        localStorage.setItem('privacyPreferences', JSON.stringify(preferences));
+        showNotification('Privacy settings saved!');
+        hidePrivacySettings();
+        
+        console.log('Privacy preferences updated:', preferences);
+    }
+
+    function exportSaveData() {
+        try {
+            const saveData = localStorage.getItem(CONFIG.SAVE_KEY);
+            if (saveData) {
+                // Create downloadable file
+                const blob = new Blob([saveData], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `space-clicker-save-${Date.now()}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                showNotification('Save data exported successfully!');
+                console.log('✅ Save data exported');
+            } else {
+                showNotification('No save data found!');
+            }
+        } catch (e) {
+            console.error('Error exporting data:', e);
+            showNotification('Failed to export data');
+        }
+    }
+
+    function deleteAllData() {
+        if (confirm('⚠️ WARNING: This will delete ALL your game progress!\n\nAre you absolutely sure?')) {
+            if (confirm('This action cannot be undone. Delete everything?')) {
+                try {
+                    localStorage.removeItem(CONFIG.SAVE_KEY);
+                    localStorage.removeItem('privacyPreferences');
+                    showNotification('All data deleted. Refreshing game...');
+                    
+                    setTimeout(() => {
+                        location.reload();
+                    }, 2000);
+                } catch (e) {
+                    console.error('Error deleting data:', e);
+                }
+            }
+        }
     }
 
     // =============================================

@@ -382,6 +382,72 @@
 
     <button id="help-button" class="help-button">❓</button>
 
+    <!-- Privacy & Settings Footer -->
+    <div id="privacy-footer">
+        <a href="privacy.html" target="_blank">Privacy Policy</a>
+        <span>•</span>
+        <a href="#" id="privacy-settings-link">Privacy Settings</a>
+        <span>•</span>
+        <a href="https://github.com/HarisHnag02/space-clicker" target="_blank">GitHub</a>
+    </div>
+
+    <!-- Privacy Settings Modal -->
+    <div id="privacy-settings-modal" class="privacy-modal">
+        <div class="privacy-modal-content">
+            <button id="close-privacy-settings" class="close-help">✖</button>
+            <h2>⚙️ Privacy Settings</h2>
+            
+            <div class="privacy-section">
+                <h3>🍪 Cookie Preferences</h3>
+                <div class="setting-item">
+                    <label class="switch">
+                        <input type="checkbox" id="analytics-cookies" checked>
+                        <span class="slider"></span>
+                    </label>
+                    <div class="setting-info">
+                        <strong>Analytics Cookies</strong>
+                        <p>Help us improve the game by allowing anonymous usage analytics</p>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <label class="switch">
+                        <input type="checkbox" id="ad-cookies" checked>
+                        <span class="slider"></span>
+                    </label>
+                    <div class="setting-info">
+                        <strong>Advertising Cookies</strong>
+                        <p>Allow personalized ads (required for ad-supported version)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="privacy-section">
+                <h3>💾 Data Management</h3>
+                <div class="data-info">
+                    <p><strong>Stored Data Size:</strong> <span id="data-size">~2 KB</span></p>
+                    <p><strong>Last Saved:</strong> <span id="last-save-time">Never</span></p>
+                    <p><strong>Storage Location:</strong> Browser localStorage (your device only)</p>
+                </div>
+                <button id="export-data-btn" class="action-button">📥 Export Save Data</button>
+                <button id="delete-data-btn" class="action-button danger">🗑️ Delete All Data</button>
+            </div>
+
+            <div class="privacy-section">
+                <h3>📊 What We Store</h3>
+                <ul>
+                    <li>✅ Game progress (particles, upgrades, etc.)</li>
+                    <li>✅ Statistics (clicks, time played)</li>
+                    <li>✅ Preferences (tutorial state)</li>
+                    <li>❌ NO personal information</li>
+                    <li>❌ NO passwords or accounts</li>
+                    <li>❌ NO location data</li>
+                </ul>
+            </div>
+
+            <button id="save-privacy-settings" class="save-settings-btn">Save Settings</button>
+        </div>
+    </div>
+
     <!-- Script -->
     <script src="script.js"></script>
 </body>

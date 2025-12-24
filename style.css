@@ -870,6 +870,16 @@ aside {
         min-height: 50px;
     }
 
+    /* Privacy Footer Mobile */
+    #privacy-footer {
+        font-size: 9px;
+        bottom: 2px;
+    }
+
+    #privacy-footer span {
+        margin: 0 4px;
+    }
+
     /* Game Container */
     #main-container {
         flex-direction: column;
@@ -1346,6 +1356,244 @@ aside {
     #main-container {
         height: calc(100vh - 200px); /* Account for bottom ad with increased height */
     }
+}
+
+/* Privacy Footer */
+#privacy-footer {
+    position: fixed;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9998;
+    font-size: 11px;
+    color: #666;
+    text-align: center;
+    pointer-events: auto;
+}
+
+#privacy-footer a {
+    color: #888;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+#privacy-footer a:hover {
+    color: #00d4ff;
+    text-decoration: underline;
+}
+
+#privacy-footer span {
+    margin: 0 8px;
+    color: #444;
+}
+
+/* Privacy Settings Modal */
+.privacy-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0);
+    z-index: 100001;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease, background 0.3s ease;
+}
+
+.privacy-modal.show {
+    display: flex;
+}
+
+.privacy-modal.active {
+    opacity: 1;
+    pointer-events: all;
+    background: rgba(0, 0, 0, 0.95);
+}
+
+.privacy-modal-content {
+    background: linear-gradient(135deg, #1a1a2e 0%, #0a0e27 100%);
+    border: 2px solid #00d4ff;
+    border-radius: 12px;
+    padding: 30px;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+    transform: scale(0.7) translateY(-50px);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.privacy-modal.active .privacy-modal-content {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+}
+
+.privacy-section {
+    margin: 25px 0;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    border-radius: 8px;
+}
+
+.privacy-section h3 {
+    color: #00d4ff;
+    font-size: 16px;
+    margin-bottom: 15px;
+}
+
+.privacy-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.privacy-section li {
+    padding: 5px 0;
+    font-size: 13px;
+    color: #ccc;
+}
+
+/* Toggle Switch */
+.setting-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 15px 0;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+    flex-shrink: 0;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #444;
+    transition: 0.3s;
+    border-radius: 26px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #00d4ff;
+}
+
+input:checked + .slider:before {
+    transform: translateX(24px);
+}
+
+.setting-info {
+    flex: 1;
+}
+
+.setting-info strong {
+    color: #fff;
+    font-size: 14px;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.setting-info p {
+    color: #999;
+    font-size: 12px;
+    margin: 0;
+}
+
+/* Data Info */
+.data-info {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+}
+
+.data-info p {
+    font-size: 13px;
+    color: #ccc;
+    margin: 8px 0;
+}
+
+.data-info strong {
+    color: #00d4ff;
+}
+
+/* Action Buttons */
+.action-button {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+    border: none;
+    border-radius: 6px;
+    color: #000;
+    font-weight: bold;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.action-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4);
+}
+
+.action-button.danger {
+    background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%);
+    color: #fff;
+}
+
+.action-button.danger:hover {
+    box-shadow: 0 4px 15px rgba(255, 68, 68, 0.4);
+}
+
+.save-settings-btn {
+    width: 100%;
+    padding: 14px;
+    margin-top: 20px;
+    background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+    border: none;
+    border-radius: 6px;
+    color: #000;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.save-settings-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
 }
 
 /* Scrollbar Styling */
