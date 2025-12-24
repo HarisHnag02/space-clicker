@@ -1864,6 +1864,61 @@
     }
 
     // =============================================
+    // AGE CONSENT
+    // =============================================
+    function checkAgeConsent() {
+        const ageConsent = localStorage.getItem('ageConsent');
+        
+        if (ageConsent === 'true') {
+            // Already consented, go straight to splash
+            showSplashScreen();
+        } else {
+            // Show age consent modal
+            showAgeConsentModal();
+        }
+    }
+
+    function showAgeConsentModal() {
+        const modal = document.getElementById('age-consent-modal');
+        const yesButton = document.getElementById('age-yes');
+        const noButton = document.getElementById('age-no');
+
+        modal.style.display = 'flex';
+
+        yesButton.onclick = function() {
+            console.log('Age consent: Yes (13+)');
+            localStorage.setItem('ageConsent', 'true');
+            
+            // Fade out age modal
+            modal.classList.add('fade-out');
+            
+            // Show splash screen
+            setTimeout(() => {
+                modal.style.display = 'none';
+                document.getElementById('splash-screen').style.display = 'flex';
+                showSplashScreen();
+            }, 500);
+        };
+
+        noButton.onclick = function() {
+            console.log('Age consent: No (under 13)');
+            
+            // Show age restriction message
+            const content = modal.querySelector('.age-consent-content');
+            content.innerHTML = `
+                <h2>⚠️ Age Restriction</h2>
+                <p style="font-size: 18px; margin: 30px 0;">This game is intended for users 13 years and older.</p>
+                <p style="color: #888;">Please return when you're older, or ask a parent/guardian for permission.</p>
+                <div style="margin-top: 40px;">
+                    <button onclick="location.reload()" style="padding: 15px 30px; background: linear-gradient(135deg, #00d4ff, #0099cc); border: none; border-radius: 25px; color: #000; font-weight: bold; cursor: pointer; font-size: 14px;">
+                        ↻ Start Over
+                    </button>
+                </div>
+            `;
+        };
+    }
+
+    // =============================================
     // SPLASH SCREEN & LOADING
     // =============================================
     function showSplashScreen() {
@@ -2063,15 +2118,15 @@
         }
     }
 
-    // Start splash screen when DOM is ready
+    // Start with age consent check when DOM is ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
             setupHelpOverlay();
-            showSplashScreen();
+            checkAgeConsent();
         });
     } else {
         setupHelpOverlay();
-        showSplashScreen();
+        checkAgeConsent();
     }
 
 })();

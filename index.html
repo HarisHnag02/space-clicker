@@ -15,8 +15,34 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Age Consent Modal -->
+    <div id="age-consent-modal" class="age-consent-overlay">
+        <div class="age-consent-content">
+            <h2>🌟 Welcome to Space Clicker!</h2>
+            <p>Before you start exploring the universe...</p>
+            
+            <div class="age-question">
+                <h3>Are you 13 years or older?</h3>
+                <p class="age-description">We need to confirm your age to comply with privacy regulations (COPPA, GDPR).</p>
+            </div>
+
+            <div class="age-buttons">
+                <button id="age-yes" class="age-button yes">
+                    ✅ Yes, I'm 13 or older
+                </button>
+                <button id="age-no" class="age-button no">
+                    ❌ No, I'm under 13
+                </button>
+            </div>
+
+            <div class="age-info">
+                <p><small>By continuing, you agree to our <a href="privacy.html" target="_blank">Privacy Policy</a></small></p>
+            </div>
+        </div>
+    </div>
+
     <!-- Loading/Splash Screen -->
-    <div id="splash-screen" class="splash-screen">
+    <div id="splash-screen" class="splash-screen" style="display: none;">
         <div class="splash-content">
             <!-- Animated Space Background -->
             <div class="space-bg">
@@ -387,8 +413,6 @@
         <a href="privacy.html" target="_blank">Privacy Policy</a>
         <span>•</span>
         <a href="#" id="privacy-settings-link">Privacy Settings</a>
-        <span>•</span>
-        <a href="https://github.com/HarisHnag02/space-clicker" target="_blank">GitHub</a>
     </div>
 
     <!-- Privacy Settings Modal -->
