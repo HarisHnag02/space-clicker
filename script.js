@@ -1878,6 +1878,38 @@
         }
     }
 
+    // Global functions for age consent (inline onclick handlers)
+    window.handleAgeYes = function() {
+        console.log('🎉 YES BUTTON CLICKED! (inline handler)');
+        localStorage.setItem('ageConsent', 'true');
+        
+        const modal = document.getElementById('age-consent-modal');
+        modal.classList.add('fade-out');
+        
+        setTimeout(() => {
+            modal.style.display = 'none';
+            document.getElementById('splash-screen').style.display = 'flex';
+            showSplashScreen();
+        }, 500);
+    };
+
+    window.handleAgeNo = function() {
+        console.log('❌ NO BUTTON CLICKED! (inline handler)');
+        
+        const modal = document.getElementById('age-consent-modal');
+        const content = modal.querySelector('.age-consent-content');
+        content.innerHTML = `
+            <h2>⚠️ Age Restriction</h2>
+            <p style="font-size: 18px; margin: 30px 0; color: #ccc;">This game is intended for users 13 years and older.</p>
+            <p style="color: #888;">Please return when you're older, or ask a parent/guardian for permission.</p>
+            <div style="margin-top: 40px;">
+                <button onclick="location.reload()" style="padding: 15px 30px; background: linear-gradient(135deg, #00d4ff, #0099cc); border: none; border-radius: 25px; color: #000; font-weight: bold; cursor: pointer; font-size: 14px; pointer-events: auto;">
+                    ↻ Start Over
+                </button>
+            </div>
+        `;
+    };
+
     function showAgeConsentModal() {
         console.log('=== SHOWING AGE CONSENT MODAL ===');
         const modal = document.getElementById('age-consent-modal');
@@ -1888,69 +1920,7 @@
         }
 
         modal.style.display = 'flex';
-        console.log('✅ Modal displayed');
-
-        // Wait a moment for modal to render, then attach handlers
-        setTimeout(() => {
-            const yesButton = document.getElementById('age-yes');
-            const noButton = document.getElementById('age-no');
-
-            if (!yesButton || !noButton) {
-                console.error('❌ Buttons not found!', { yesButton, noButton });
-                return;
-            }
-
-            console.log('✅ Buttons found:', yesButton, noButton);
-
-            // YES BUTTON - Direct onclick
-            yesButton.onclick = function(e) {
-                console.log('🎉 YES BUTTON CLICKED!');
-                localStorage.setItem('ageConsent', 'true');
-                
-                // Fade out age modal
-                modal.classList.add('fade-out');
-                
-                // Show splash screen
-                setTimeout(() => {
-                    modal.style.display = 'none';
-                    document.getElementById('splash-screen').style.display = 'flex';
-                    showSplashScreen();
-                }, 500);
-            };
-
-            // Touch handler
-            yesButton.ontouchstart = function(e) {
-                e.preventDefault();
-                console.log('📱 YES BUTTON TOUCHED!');
-                yesButton.onclick();
-            };
-
-            // NO BUTTON - Direct onclick
-            noButton.onclick = function(e) {
-                console.log('❌ NO BUTTON CLICKED!');
-                
-                // Show age restriction message
-                const content = modal.querySelector('.age-consent-content');
-                content.innerHTML = `
-                    <h2>⚠️ Age Restriction</h2>
-                    <p style="font-size: 18px; margin: 30px 0; color: #ccc;">This game is intended for users 13 years and older.</p>
-                    <p style="color: #888;">Please return when you're older, or ask a parent/guardian for permission.</p>
-                    <div style="margin-top: 40px;">
-                        <button onclick="location.reload()" style="padding: 15px 30px; background: linear-gradient(135deg, #00d4ff, #0099cc); border: none; border-radius: 25px; color: #000; font-weight: bold; cursor: pointer; font-size: 14px;">
-                            ↻ Start Over
-                        </button>
-                    </div>
-                `;
-            };
-
-            noButton.ontouchstart = function(e) {
-                e.preventDefault();
-                console.log('📱 NO BUTTON TOUCHED!');
-                noButton.onclick();
-            };
-
-            console.log('✅ Age consent handlers attached!');
-        }, 100);
+        console.log('✅ Modal displayed - buttons use inline onclick handlers');
     }
 
     // =============================================
