@@ -1182,46 +1182,66 @@ window.handleAgeNo = function() {
     }
 
     function handleClick(x, y) {
-        // Check if any object was clicked
+        // Find ALL objects under cursor and pick the closest one
+        let clickedObjects = [];
+        
         for (let obj of objectPool) {
             if (obj.active && obj.contains(x, y)) {
-                // Update combo
-                updateCombo();
-                
-                // Calculate yield with combo multiplier
-                let particleYield = calculateClickYield(obj.type);
-                particleYield = Math.floor(particleYield * comboState.multiplier);
-                
-                addParticles(particleYield);
-                gameState.stats.totalClicks++;
-                
-                // Track specific object types
-                if (obj.type === 'star') gameState.stats.starsClicked++;
-                if (obj.type === 'smallRock') gameState.stats.rockClicks++;
-                if (obj.type === 'comet') gameState.stats.cometClicks++;
-                
-                // Play sound
-                sounds.click();
-                
-                // Create particle effect
-                particleEffects.push(new ParticleEffect(obj.x, obj.y, '#00d4ff', 12, 2));
-                
-                // Create explosion and despawn
-                particleEffects.push(new ExplosionEffect(obj.x, obj.y, obj.size));
-                sounds.explosion();
-                
-                gameState.stats.objectsDestroyed++;
-                obj.despawn();
-                
-                // Tutorial progress
-                if (gameState.tutorialStep === 0) gameState.tutorialStep = 1;
-                
-                // Analytics
-                trackEvent('object_clicked', { type: obj.type, yield: particleYield, combo: comboState.count });
-                
-                checkAchievements();
+                const dx = x - obj.x;
+                const dy = y - obj.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                clickedObjects.push({ obj, distance });
+            }
+        }
+        
+        // If multiple objects overlap, click the one closest to center
+        if (clickedObjects.length > 0) {
+            clickedObjects.sort((a, b) => a.distance - b.distance);
+            const obj = clickedObjects[0].obj;
+            
+            // Check if this is a drone-only object
+            const objConfig = CONFIG.OBJECTS[obj.type];
+            if (objConfig && objConfig.humanOnly === false && objConfig.droneType && objConfig.droneType !== 'any') {
+                // This is drone-only, humans can't click it
+                console.log(`⚠️ ${obj.type} is drone-only! Wait for drones to collect.`);
                 return;
             }
+            
+            // Update combo
+            updateCombo();
+            
+            // Calculate yield with combo multiplier
+            let particleYield = calculateClickYield(obj.type);
+            particleYield = Math.floor(particleYield * comboState.multiplier);
+            
+            addParticles(particleYield);
+            gameState.stats.totalClicks++;
+            
+            // Track specific object types
+            if (obj.type === 'star') gameState.stats.starsClicked++;
+            if (obj.type === 'smallRock') gameState.stats.rockClicks++;
+            if (obj.type === 'comet') gameState.stats.cometClicks++;
+            
+            // Play sound
+            sounds.click();
+            
+            // Create particle effect
+            particleEffects.push(new ParticleEffect(obj.x, obj.y, '#00d4ff', 12, 2));
+            
+            // Create explosion and despawn
+            particleEffects.push(new ExplosionEffect(obj.x, obj.y, obj.size));
+            sounds.explosion();
+            
+            gameState.stats.objectsDestroyed++;
+            obj.despawn();
+            
+            // Tutorial progress
+            if (gameState.tutorialStep === 0) gameState.tutorialStep = 1;
+            
+            // Analytics
+            trackEvent('object_clicked', { type: obj.type, yield: particleYield, combo: comboState.count });
+            
+            checkAchievements();
         }
     }
 
