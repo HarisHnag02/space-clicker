@@ -55,8 +55,26 @@
         ACHIEVEMENTS: {
             firstAsteroid: { condition: () => gameState.stats.totalClicks >= 10, reward: 0.05, name: 'First Asteroid', description: 'Click 10 times' },
             stellarEngineer: { condition: () => gameState.stats.starsClicked >= 1, reward: 0, name: 'Stellar Engineer', description: 'Click your first star' },
-            millionaire: { condition: () => gameState.stats.lifetimeParticles >= 1000000, reward: 0, name: 'Millionaire', description: 'Earn 1 million particles' }
-        }
+            millionaire: { condition: () => gameState.stats.lifetimeParticles >= 1000000, reward: 0, name: 'Millionaire', description: 'Earn 1 million particles' },
+            rockCollector: { condition: () => gameState.stats.rockClicks >= 100, reward: 0.1, name: 'Rock Collector', description: 'Click 100 small rocks' },
+            planetExplorer: { condition: () => gameState.stats.planetsMined >= 50, reward: 0, name: 'Planet Explorer', description: 'Mine 50 planets - Earn free Mining Ship' },
+            cometHunter: { condition: () => gameState.stats.cometClicks >= 50, reward: 0, name: 'Comet Hunter', description: 'Click 50 comets - Comets move 20% slower' },
+            automationMaster: { condition: () => gameState.harvesters.drone >= 5 && gameState.harvesters.miningShip >= 3, reward: 0.05, name: 'Automation Master', description: 'Own 5 drones and 3 mining ships' },
+            speedrunner: { condition: () => gameState.stats.fastestPrestige > 0 && gameState.stats.fastestPrestige < 3600, reward: 0, name: 'Speedrunner', description: 'Prestige in under 1 hour' },
+            billionaire: { condition: () => gameState.stats.lifetimeParticles >= 1000000000, reward: 0, name: 'Billionaire', description: 'Earn 1 billion particles total' },
+            comboMaster: { condition: () => gameState.stats.highestCombo >= 10, reward: 0.1, name: 'Combo Master', description: 'Achieve a 10x combo' }
+        },
+
+        DAILY_REWARDS: [
+            { day: 1, particles: 100, description: '100 Particles' },
+            { day: 2, particles: 300, description: '300 Particles' },
+            { day: 3, particles: 750, description: '750 Particles' },
+            { day: 4, particles: 1500, bonus: { type: 'drone', count: 1 }, description: '1,500 Particles + Free Drone' },
+            { day: 5, particles: 3000, description: '3,000 Particles' },
+            { day: 6, particles: 7500, description: '7,500 Particles' },
+            { day: 7, particles: 15000, bonus: { type: 'multiplier', value: 0.05 }, description: '15,000 Particles + 5% Permanent Boost!' }
+        ]
+    };
     };
 
     // =============================================
@@ -74,9 +92,16 @@
         stats: {
             totalClicks: 0,
             starsClicked: 0,
+            rockClicks: 0,
+            cometClicks: 0,
+            planetsMined: 0,
             lifetimeParticles: 0,
             objectsDestroyed: 0,
-            playtime: 0
+            playtime: 0,
+            highestCombo: 0,
+            fastestPrestige: 0,
+            sessionStart: Date.now(),
+            adsWatched: 0
         },
         difficulty: {
             spawnRateMultiplier: 1.0, // Increases spawn time as game progresses
@@ -105,6 +130,54 @@
         interstitialCounter: 0,
         lastInterstitialTime: 0
     };
+
+    // Combo System
+    let comboState = {
+        count: 0,
+        lastClickTime: 0,
+        comboTimeout: null,
+        multiplier: 1.0
+    };
+
+    // Daily Reward System
+    let dailyRewardState = {
+        lastClaimed: 0,
+        streak: 0
+    };
+
+    // Sound Effects (Web Audio API)
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const sounds = {
+        click: createSound(440, 0.1, 'sine'),
+        collect: createSound(660, 0.15, 'sine'),
+        purchase: createSound(330, 0.2, 'square'),
+        explosion: createSound(110, 0.3, 'sawtooth'),
+        achievement: createSound(880, 0.4, 'sine'),
+        combo: createSound(550, 0.15, 'triangle')
+    };
+
+    function createSound(frequency, duration, type = 'sine') {
+        return function() {
+            try {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = frequency;
+                oscillator.type = type;
+                
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration);
+            } catch (e) {
+                // Silently fail if audio context issues
+            }
+        };
+    }
 
     class SpaceObject {
         constructor(type) {
@@ -872,6 +945,12 @@
                             // Create explosion
                             particleEffects.push(new ExplosionEffect(this.target.x, this.target.y, this.target.size));
                             gameState.stats.objectsDestroyed++;
+                            
+                            // Track planets mined
+                            if (this.target.type === 'planet') {
+                                gameState.stats.planetsMined++;
+                            }
+                            
                             this.target.despawn();
                             this.target = null;
                             this.isAttached = false;
@@ -1069,26 +1148,112 @@
         // Check if any object was clicked
         for (let obj of objectPool) {
             if (obj.active && obj.contains(x, y)) {
-                const particleYield = calculateClickYield(obj.type);
+                // Update combo
+                updateCombo();
+                
+                // Calculate yield with combo multiplier
+                let particleYield = calculateClickYield(obj.type);
+                particleYield = Math.floor(particleYield * comboState.multiplier);
+                
                 addParticles(particleYield);
                 gameState.stats.totalClicks++;
+                
+                // Track specific object types
                 if (obj.type === 'star') gameState.stats.starsClicked++;
+                if (obj.type === 'smallRock') gameState.stats.rockClicks++;
+                if (obj.type === 'comet') gameState.stats.cometClicks++;
+                
+                // Play sound
+                sounds.click();
                 
                 // Create particle effect
                 particleEffects.push(new ParticleEffect(obj.x, obj.y, '#00d4ff', 12, 2));
                 
                 // Create explosion and despawn
                 particleEffects.push(new ExplosionEffect(obj.x, obj.y, obj.size));
+                sounds.explosion();
+                
                 gameState.stats.objectsDestroyed++;
                 obj.despawn();
                 
                 // Tutorial progress
                 if (gameState.tutorialStep === 0) gameState.tutorialStep = 1;
                 
+                // Analytics
+                trackEvent('object_clicked', { type: obj.type, yield: particleYield, combo: comboState.count });
+                
                 checkAchievements();
                 return;
             }
         }
+    }
+
+    // =============================================
+    // COMBO SYSTEM
+    // =============================================
+    function updateCombo() {
+        const now = Date.now();
+        const timeSinceLastClick = now - comboState.lastClickTime;
+        
+        if (timeSinceLastClick < 2000) {
+            // Within combo window (2 seconds)
+            comboState.count++;
+            
+            // Calculate multiplier
+            if (comboState.count >= 10) {
+                comboState.multiplier = 3.0;
+                sounds.combo();
+            } else if (comboState.count >= 5) {
+                comboState.multiplier = 2.0;
+                sounds.combo();
+            } else if (comboState.count >= 3) {
+                comboState.multiplier = 1.5;
+            } else {
+                comboState.multiplier = 1.0;
+            }
+            
+            // Update highest combo
+            if (comboState.count > gameState.stats.highestCombo) {
+                gameState.stats.highestCombo = comboState.count;
+            }
+            
+            // Show combo counter
+            const comboEl = document.getElementById('combo-counter');
+            comboEl.style.display = 'block';
+            document.getElementById('combo-number').textContent = comboState.count;
+            document.getElementById('combo-multiplier').textContent = `×${comboState.multiplier.toFixed(1)}`;
+            
+            // Special effects for high combos
+            if (comboState.count === 10) {
+                showNotification('🔥 MEGA COMBO! ×3.0 Multiplier!', true);
+            } else if (comboState.count === 5) {
+                showNotification('⚡ COMBO! ×2.0 Multiplier!', true);
+            }
+        } else {
+            // Combo broken, reset
+            resetCombo();
+        }
+        
+        comboState.lastClickTime = now;
+        
+        // Reset combo after 2 seconds of inactivity
+        if (comboState.comboTimeout) clearTimeout(comboState.comboTimeout);
+        comboState.comboTimeout = setTimeout(resetCombo, 2000);
+    }
+
+    function resetCombo() {
+        if (comboState.count > 0) {
+            // Hide combo counter with fade
+            const comboEl = document.getElementById('combo-counter');
+            comboEl.style.opacity = '0';
+            setTimeout(() => {
+                comboEl.style.display = 'none';
+                comboEl.style.opacity = '1';
+            }, 300);
+        }
+        
+        comboState.count = 0;
+        comboState.multiplier = 1.0;
     }
 
     function spawnObjects(timestamp) {
@@ -1335,9 +1500,17 @@
             gameState.particles -= cost;
             gameState.harvesters[harvester]++;
             showNotification(`Purchased ${config.name}! (${owned + 1}/${maxOwned})`);
+            sounds.purchase();
             
             // Tutorial progress
             if (gameState.tutorialStep === 1) gameState.tutorialStep = 2;
+            
+            // Analytics
+            trackEvent('purchase_harvester', {
+                harvester: harvester,
+                cost: cost,
+                owned: owned + 1
+            });
             
             return true;
         }
@@ -1350,6 +1523,15 @@
             gameState.particles -= cost;
             gameState.upgrades[upgrade]++;
             showNotification(`Upgraded ${CONFIG.UPGRADES[upgrade].name}!`);
+            sounds.purchase();
+            
+            // Analytics
+            trackEvent('purchase_upgrade', {
+                upgrade: upgrade,
+                level: gameState.upgrades[upgrade],
+                cost: cost
+            });
+            
             return true;
         }
         return false;
@@ -1366,12 +1548,20 @@
             
             // Show tier unlock notification with warning about difficulty
             showNotification(`Unlocked ${CONFIG.TIERS[nextTier].name}!`);
+            sounds.achievement();
             
             if (nextTier > 0) {
                 setTimeout(() => {
                     showNotification(`⚠️ Difficulty increased! Objects spawn slower.`);
                 }, 1500);
             }
+            
+            // Analytics
+            trackEvent('tier_unlocked', {
+                tier: nextTier,
+                tier_name: CONFIG.TIERS[nextTier].name,
+                cost: cost
+            });
             
             checkInterstitialTrigger(); // Trigger interstitial ad
             return true;
@@ -1383,6 +1573,12 @@
         const shardsGained = Math.floor(gameState.particles / 100000);
         if (shardsGained === 0 || gameState.tier < 3) return false;
 
+        // Track prestige time for speedrunner achievement
+        const prestigeTime = (Date.now() - gameState.stats.sessionStart) / 1000;
+        if (gameState.stats.fastestPrestige === 0 || prestigeTime < gameState.stats.fastestPrestige) {
+            gameState.stats.fastestPrestige = prestigeTime;
+        }
+
         gameState.warpShards += shardsGained;
         gameState.prestigeCount++;
         
@@ -1393,10 +1589,24 @@
         gameState.tier = 0;
         gameState.stats.totalClicks = 0;
         gameState.stats.starsClicked = 0;
-        // Keep lifetimeParticles and achievements
+        gameState.stats.rockClicks = 0;
+        gameState.stats.cometClicks = 0;
+        gameState.stats.planetsMined = 0;
+        gameState.stats.sessionStart = Date.now();
+        // Keep lifetimeParticles, achievements, and other lifetime stats
         
         showNotification(`Prestige! Gained ${shardsGained} Warp Shards!`, true);
+        sounds.achievement();
+        
+        // Analytics
+        trackEvent('prestige', { 
+            shards_gained: shardsGained, 
+            prestige_count: gameState.prestigeCount,
+            time_seconds: Math.floor(prestigeTime)
+        });
+        
         checkInterstitialTrigger(); // Trigger interstitial ad
+        checkAchievements();
         return true;
     }
 
@@ -1409,10 +1619,43 @@
                 const achievement = CONFIG.ACHIEVEMENTS[key];
                 if (achievement.condition()) {
                     gameState.achievements.push(key);
-                    showNotification(`Achievement: ${achievement.name}!`, true);
+                    showNotification(`🏆 Achievement: ${achievement.name}!`, true);
+                    sounds.achievement();
+                    
+                    // Apply special rewards
+                    if (key === 'planetExplorer') {
+                        gameState.harvesters.miningShip++;
+                        showNotification('Bonus: +1 Mining Ship!', true);
+                    }
+                    
+                    // Analytics
+                    trackEvent('achievement_unlocked', { achievement: key });
                 }
             }
         }
+    }
+
+    // =============================================
+    // ANALYTICS TRACKING
+    // =============================================
+    function trackEvent(eventName, parameters = {}) {
+        // Google Analytics 4
+        if (typeof gtag === 'function') {
+            gtag('event', eventName, parameters);
+        }
+        
+        // Console log for debugging
+        console.log(`📊 Analytics: ${eventName}`, parameters);
+    }
+
+    function trackPageView(pageName) {
+        if (typeof gtag === 'function') {
+            gtag('event', 'page_view', {
+                page_title: pageName,
+                page_location: window.location.href
+            });
+        }
+        console.log(`📊 Page View: ${pageName}`);
     }
 
     // =============================================
@@ -1615,12 +1858,129 @@
         adState.bonusTimeLeft = 60; // 60 seconds
         adState.rewardedAdCooldown = 120; // 2 minute cooldown
         
+        // Update stats
+        gameState.stats.adsWatched++;
+        
         // Update UI
         document.getElementById('ad-bonus-timer').style.display = 'block';
         showNotification('🎁 Ad Bonus Active! +200% Particles for 60s!', true);
+        sounds.achievement();
         
-        // Analytics tracking point
-        console.log('📊 Analytics: Rewarded ad completed');
+        // Analytics
+        trackEvent('rewarded_ad_completed', {
+            ads_watched_total: gameState.stats.adsWatched,
+            session_time: Math.floor((Date.now() - gameState.stats.sessionStart) / 1000)
+        });
+    }
+
+    // =============================================
+    // DAILY REWARDS SYSTEM
+    // =============================================
+    function checkDailyReward() {
+        const saved = localStorage.getItem('dailyReward');
+        if (saved) {
+            dailyRewardState = JSON.parse(saved);
+        }
+        
+        const now = Date.now();
+        const dayInMs = 86400000; // 24 hours
+        const timeSinceLastClaim = now - dailyRewardState.lastClaimed;
+        
+        // Check if reward is available
+        if (dailyRewardState.lastClaimed === 0 || timeSinceLastClaim >= dayInMs) {
+            // Check if streak continues or breaks
+            if (timeSinceLastClaim < dayInMs * 2) {
+                // Within grace period, continue streak
+                dailyRewardState.streak++;
+            } else if (dailyRewardState.lastClaimed > 0) {
+                // Streak broken
+                dailyRewardState.streak = 1;
+                showNotification('⚠️ Login streak reset!');
+            }
+            
+            // Cap streak at 7 days (cycles)
+            if (dailyRewardState.streak > 7) {
+                dailyRewardState.streak = 1;
+            }
+            
+            // Show daily reward modal after a delay
+            setTimeout(() => {
+                showDailyRewardModal();
+            }, 3000);
+        }
+    }
+
+    function showDailyRewardModal() {
+        const modal = document.getElementById('daily-reward-modal');
+        const streakEl = document.getElementById('daily-streak-count');
+        const rewardContent = document.getElementById('daily-reward-content');
+        
+        const day = dailyRewardState.streak;
+        const reward = CONFIG.DAILY_REWARDS[day - 1];
+        
+        streakEl.textContent = day;
+        
+        // Build reward display
+        let rewardHTML = `<div class="reward-item">💰 ${reward.particles.toLocaleString()} Particles</div>`;
+        
+        if (reward.bonus) {
+            if (reward.bonus.type === 'drone') {
+                rewardHTML += `<div class="reward-item">🤖 +${reward.bonus.count} Free Drone!</div>`;
+            } else if (reward.bonus.type === 'multiplier') {
+                rewardHTML += `<div class="reward-item">⭐ +${(reward.bonus.value * 100)}% Permanent Boost!</div>`;
+            }
+        }
+        
+        rewardContent.innerHTML = rewardHTML;
+        
+        // Show modal
+        modal.classList.add('show');
+        requestAnimationFrame(() => {
+            modal.classList.add('active');
+        });
+        
+        // Analytics
+        trackEvent('daily_reward_shown', { day: day, streak: dailyRewardState.streak });
+    }
+
+    function claimDailyReward() {
+        const day = dailyRewardState.streak;
+        const reward = CONFIG.DAILY_REWARDS[day - 1];
+        
+        // Grant particles
+        addParticles(reward.particles);
+        showNotification(`+${reward.particles.toLocaleString()} Particles!`);
+        
+        // Grant bonus if present
+        if (reward.bonus) {
+            if (reward.bonus.type === 'drone') {
+                gameState.harvesters.drone += reward.bonus.count;
+                showNotification('Bonus: +1 Drone added!', true);
+            } else if (reward.bonus.type === 'multiplier') {
+                // This would need a permanent multiplier system
+                showNotification(`Bonus: +${(reward.bonus.value * 100)}% boost active!`, true);
+            }
+        }
+        
+        // Update last claimed
+        dailyRewardState.lastClaimed = Date.now();
+        localStorage.setItem('dailyReward', JSON.stringify(dailyRewardState));
+        
+        // Close modal
+        const modal = document.getElementById('daily-reward-modal');
+        modal.classList.remove('active');
+        setTimeout(() => {
+            modal.classList.remove('show');
+        }, 300);
+        
+        sounds.achievement();
+        
+        // Analytics
+        trackEvent('daily_reward_claimed', { 
+            day: day, 
+            particles: reward.particles,
+            streak: dailyRewardState.streak
+        });
     }
 
 
@@ -1762,6 +2122,19 @@
         document.getElementById('export-data-btn').addEventListener('click', exportSaveData);
         document.getElementById('delete-data-btn').addEventListener('click', deleteAllData);
         document.getElementById('save-privacy-settings').addEventListener('click', savePrivacySettings);
+
+        // Daily Reward System
+        document.getElementById('claim-daily-reward').addEventListener('click', () => {
+            claimDailyReward();
+        });
+
+        document.getElementById('close-daily-reward').addEventListener('click', () => {
+            const modal = document.getElementById('daily-reward-modal');
+            modal.classList.remove('active');
+            setTimeout(() => {
+                modal.classList.remove('show');
+            }, 300);
+        });
     }
 
     // =============================================
@@ -2092,23 +2465,51 @@
         // Setup UI event handlers
         setupEventHandlers();
 
+        // Check daily reward
+        checkDailyReward();
+
         // Start game loops
         requestAnimationFrame(renderFrame);
         setInterval(economyTick, CONFIG.TICK_INTERVAL);
         setInterval(updateUI, CONFIG.UI_UPDATE_INTERVAL);
         
         // Save on page unload (tab switch, close, etc)
-        window.addEventListener('beforeunload', saveGame);
+        window.addEventListener('beforeunload', () => {
+            saveGame();
+            trackSessionEnd();
+        });
+        
         window.addEventListener('visibilitychange', () => {
             if (document.hidden) {
                 saveGame();
             }
         });
 
+        // Track game start
+        trackPageView('game_screen');
+        trackEvent('game_started', {
+            tier: gameState.tier,
+            particles: gameState.particles
+        });
+
         // Initial UI update
         updateUI();
 
         console.log('Space Exploration Clicker initialized! (Fresh start)');
+    }
+
+    function trackSessionEnd() {
+        const sessionLength = (Date.now() - gameState.stats.sessionStart) / 1000;
+        
+        trackEvent('session_end', {
+            duration_seconds: Math.floor(sessionLength),
+            particles_earned: gameState.particles,
+            tier_reached: gameState.tier,
+            clicks: gameState.stats.totalClicks,
+            objects_destroyed: gameState.stats.objectsDestroyed,
+            ads_watched: gameState.stats.adsWatched,
+            highest_combo: gameState.stats.highestCombo
+        });
     }
 
     // Setup help overlay close button early (works on both splash and game screen)

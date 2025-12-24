@@ -1779,6 +1779,156 @@ input:checked + .slider:before {
     box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
 }
 
+/* Combo Counter */
+.combo-counter {
+    position: fixed;
+    top: 100px;
+    right: 20px;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.95), rgba(255, 140, 0, 0.95));
+    border: 3px solid #ffd700;
+    border-radius: 12px;
+    padding: 15px 25px;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+    z-index: 9997;
+    animation: comboPopIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes comboPopIn {
+    from { transform: scale(0) rotate(-180deg); opacity: 0; }
+    to { transform: scale(1) rotate(0); opacity: 1; }
+}
+
+.combo-text {
+    font-size: 12px;
+    font-weight: bold;
+    color: #000;
+    letter-spacing: 2px;
+}
+
+.combo-number {
+    font-size: 36px;
+    font-weight: bold;
+    color: #000;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    line-height: 1;
+}
+
+.combo-multiplier {
+    font-size: 14px;
+    font-weight: bold;
+    color: #000;
+    margin-top: 5px;
+}
+
+/* Daily Reward Modal */
+.daily-reward-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0);
+    z-index: 100001;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease, background 0.3s ease;
+}
+
+.daily-reward-overlay.show {
+    display: flex;
+}
+
+.daily-reward-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+    background: rgba(0, 0, 0, 0.95);
+}
+
+.daily-reward-content {
+    background: linear-gradient(135deg, #2a1a4a 0%, #1a0a3a 100%);
+    border: 3px solid #ffd700;
+    border-radius: 16px;
+    padding: 40px;
+    max-width: 500px;
+    text-align: center;
+    box-shadow: 0 0 50px rgba(255, 215, 0, 0.6);
+    transform: scale(0.7) translateY(-50px);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    position: relative;
+}
+
+.daily-reward-overlay.active .daily-reward-content {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+}
+
+.daily-reward-content h2 {
+    color: #ffd700;
+    font-size: 32px;
+    margin-bottom: 10px;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+}
+
+.daily-streak {
+    background: rgba(255, 215, 0, 0.1);
+    border: 2px solid rgba(255, 215, 0, 0.3);
+    border-radius: 10px;
+    padding: 15px;
+    margin: 20px 0;
+}
+
+.daily-streak h3 {
+    color: #ffd700;
+    font-size: 20px;
+}
+
+.daily-reward-display {
+    margin: 25px 0;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+}
+
+.reward-items {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.reward-item {
+    background: rgba(255, 215, 0, 0.1);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 16px;
+    color: #ffd700;
+    font-weight: bold;
+}
+
+.claim-reward-btn {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+    border: none;
+    border-radius: 30px;
+    color: #000;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.5);
+}
+
+.claim-reward-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 30px rgba(255, 215, 0, 0.7);
+}
+
 /* Scrollbar Styling */
 ::-webkit-scrollbar {
     width: 8px;
