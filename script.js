@@ -113,7 +113,6 @@ window.handleAgeNo = function() {
             { day: 7, particles: 15000, bonus: { type: 'multiplier', value: 0.05 }, description: '15,000 Particles + 5% Permanent Boost!' }
         ]
     };
-    };
 
     // =============================================
     // GAME STATE
