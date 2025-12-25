@@ -1341,21 +1341,22 @@ aside {
     left: 50%;
     transform: translateX(-50%);
     z-index: 999;
-    padding: 5px;
+    padding: 3px;
     background: rgba(10, 14, 39, 0.95);
-    border-top: 2px solid rgba(0, 212, 255, 0.3);
+    border-top: 1px solid rgba(0, 212, 255, 0.3);
     display: none; /* Show on larger screens */
+    height: 100px;
 }
 
 .bottom-ad-container .ad-placeholder {
-    min-height: 90px;
-    height: 90px;
+    min-height: 94px;
+    height: 94px;
 }
 
 .bottom-ad-container .ad-content {
-    line-height: 1.4;
-    padding: 10px;
-    font-size: 10px;
+    line-height: 1.2;
+    padding: 8px;
+    font-size: 9px;
 }
 
 /* Interstitial Ad Overlay */
@@ -1579,7 +1580,7 @@ aside {
     }
     
     #main-container {
-        height: calc(100vh - 170px); /* Account for bottom ad - reduced for more game space */
+        height: calc(100vh - 170px); /* Account for top bar (70px) + bottom ad (100px) */
     }
 }
 
