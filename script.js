@@ -1735,9 +1735,8 @@ window.handleAgeNo = function() {
         document.getElementById('total-clicks-display').textContent = formatNumber(gameState.stats.totalClicks);
         document.getElementById('multiplier-display').textContent = totalMult.toFixed(2) + 'x';
 
-        // Object counts for all types
-        ['smallRock', 'asteroid', 'comet', 'spaceDebris', 'crystalAsteroid', 
-         'nebula', 'planet', 'star'].forEach(type => {
+        // Object counts for auto-collect types only (click-only section removed)
+        ['asteroid', 'spaceDebris', 'crystalAsteroid', 'planet', 'star'].forEach(type => {
             const element = document.getElementById(`${type}-count`);
             if (element) {
                 element.textContent = objectPool.filter(obj => obj.type === type && obj.active).length;
