@@ -1341,22 +1341,22 @@ aside {
     left: 50%;
     transform: translateX(-50%);
     z-index: 999;
-    padding: 3px;
-    background: rgba(10, 14, 39, 0.95);
-    border-top: 1px solid rgba(0, 212, 255, 0.3);
+    padding: 2px 5px;
+    background: rgba(10, 14, 39, 0.9);
+    border-top: 1px solid rgba(0, 212, 255, 0.2);
     display: none; /* Show on larger screens */
-    height: 100px;
 }
 
 .bottom-ad-container .ad-placeholder {
-    min-height: 94px;
-    height: 94px;
+    height: 90px;
+    min-height: 90px;
+    max-height: 90px;
 }
 
 .bottom-ad-container .ad-content {
-    line-height: 1.2;
-    padding: 8px;
-    font-size: 9px;
+    line-height: 1;
+    padding: 5px;
+    font-size: 8px;
 }
 
 /* Interstitial Ad Overlay */
@@ -1580,7 +1580,7 @@ aside {
     }
     
     #main-container {
-        height: calc(100vh - 170px); /* Account for top bar (70px) + bottom ad (100px) */
+        height: calc(100vh - 164px); /* Top bar (70px) + bottom ad (94px) = 164px */
     }
 }
 
