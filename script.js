@@ -7,14 +7,19 @@ window.handleAgeYes = function() {
     localStorage.setItem('ageConsent', 'true');
     
     const modal = document.getElementById('age-consent-modal');
+    const splashScreen = document.getElementById('splash-screen');
+    
     modal.classList.add('fade-out');
     
     setTimeout(() => {
         modal.style.display = 'none';
-        document.getElementById('splash-screen').style.display = 'flex';
-        // Call the internal function
-        if (window.gameInitialized) {
+        splashScreen.style.display = 'grid'; // Changed from 'flex' to 'grid'
+        
+        // Call the internal function if available
+        if (window.gameInitialized && window.gameInitialized.showSplashScreen) {
             window.gameInitialized.showSplashScreen();
+        } else {
+            console.log('⚠️ Splash screen function not ready yet, will be called on init');
         }
     }, 500);
 };
@@ -2285,9 +2290,13 @@ window.handleAgeNo = function() {
         
         if (ageConsent === 'true') {
             // Already consented, go straight to splash
+            console.log('✅ Age consent already given, showing splash screen');
+            document.getElementById('age-consent-modal').style.display = 'none';
+            document.getElementById('splash-screen').style.display = 'grid';
             showSplashScreen();
         } else {
             // Show age consent modal
+            console.log('ℹ️ No age consent found, showing modal');
             showAgeConsentModal();
         }
     }
